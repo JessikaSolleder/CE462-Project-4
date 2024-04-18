@@ -1,5 +1,5 @@
-# CE462-Project-4
-Anchored Pile Walls
+# CE462-Project-4 / Anchored Pile Walls
+
 This program will use the textbook free earth support method to design an anchored sheet pile wall in granular soil. The program will automatically calculate the embedment depth, anchor force, and maximum moment. It will also include the grounwater table, but will not include seepage.
 
 The program will enable the user to input the following parameters:
