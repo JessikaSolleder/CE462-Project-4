@@ -2,6 +2,7 @@ from math import tan
 import cmath
 import tkinter as tk
 from tkinter import simpledialog
+from tkinter import messagebox
 
 # User Inputs
 wall_height = simpledialog.askfloat("Input", "Enter wall height (m):")
@@ -38,11 +39,12 @@ else:
     sigma8 = gamma_prime * (kp - ka) * l4
 
     # Determine F (anchor force)
-    f = p - (0.5 * (gamma_prime * (kp - ka)) * l4)
-
+    anchor_force = p - (0.5 * (gamma_prime * (kp - ka)) * l4)
+    message_anchor = f"Anchor Force: {anchor_force}"
     # Determine embedment depth
     d_theoretical = l3 + l4
     d_actual = 1.35 * d_theoretical
+    message_depth = f"Theoretical Depth: {d_theoretical}\nActual Depth: {d_actual}"
 
     # Determine maximum moment
     def solve_quadratic(a, b, c):
@@ -57,17 +59,23 @@ else:
             return root1, root2
         else:
             # If the discriminant is negative, return complex roots
-            root1 = (-b + cmath.sqrt(discriminant)) / (2 * a)
-            root2 = (-b - cmath.sqrt(discriminant)) / (2 * a)
-            return root1, root2
+            messagebox.showinfo("Error", "Discriminant is negative. Please input different values.")
+            return None, None
 
     # Coefficients of the quadratic equation ax^2 + bx + c = 0
     a = 0.5 * ka * gamma_prime
     b = sigma1 - ka * gamma_prime * l1
-    c = (f + 0.5 * sigma1 * l1) - (0.5 * ka * gamma_prime * (l1 ** 2))
+    c = (anchor_force + 0.5 * sigma1 * l1) - (0.5 * ka * gamma_prime * (l1 ** 2))
 
     # Solve the quadratic equation
     root1, root2 = solve_quadratic(a, b, c)
 
     print("Root 1:", root1)
     print("Root 2:", root2)
+    
+    # Solve for max moment
+
+
+# Solutions Box
+messagebox.showinfo("Embedment Depth Results", message_depth, " meters")
+messagebox.showinfo("Anchor Force Results", message_anchor, " kN")

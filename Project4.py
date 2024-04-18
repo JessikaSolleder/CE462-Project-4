@@ -41,6 +41,7 @@ else:
     # Determine F (anchor force)
     anchor_force = p - (0.5 * (gamma_prime * (kp - ka)) * l4)
     message_anchor = f"Anchor Force: {anchor_force}"
+    
     # Determine embedment depth
     d_theoretical = l3 + l4
     d_actual = 1.35 * d_theoretical
@@ -59,9 +60,8 @@ else:
             return root1, root2
         else:
             # If the discriminant is negative, return complex roots
-            root1 = (-b + cmath.sqrt(discriminant)) / (2 * a)
-            root2 = (-b - cmath.sqrt(discriminant)) / (2 * a)
-            return root1, root2
+            messagebox.showinfo("Error", "Discriminant is negative. Please input different values.")
+            return None, None
 
     # Coefficients of the quadratic equation ax^2 + bx + c = 0
     a = 0.5 * ka * gamma_prime
@@ -69,11 +69,48 @@ else:
     c = (anchor_force + 0.5 * sigma1 * l1) - (0.5 * ka * gamma_prime * (l1 ** 2))
 
     # Solve the quadratic equation
-    root1, root2 = solve_quadratic(a, b, c)
 
-    print("Root 1:", root1)
-    print("Root 2:", root2)
+root1, root2 = solve_quadratic(a, b, c)
+
+# Initialize m_max to None
+m_max = None
+
+# Check if root1 is a real number
+if isinstance(root1, (int, float)):
+    m_max = - (0.5 * sigma1 * l1) * (root1 - (2/3) * l1) + anchor_force * (root1 - (l1 * (1/3))) - (sigma1 * (root1 - l1)) * ((root1 - l1) / 2) - (0.5 * ka * gamma_prime * (root1 - l1) ** 2) * ((root1 - l1) / 3) 
+    print("Using root1 for m_max calculation.")
+# If root1 is not real, check if root2 is real
+elif isinstance(root2, (int, float)):
+    m_max = - (0.5 * sigma1 * l1) * (root2 - (2/3) * l1) + anchor_force * (root2 - (l1 * (1/3))) - (sigma1 * (root2 - l1)) * ((root2 - l1) / 2) - (0.5 * ka * gamma_prime * (root2 - l1) ** 2) * ((root2 - l1) / 3) 
+    print("Using root2 for m_max calculation.")
+else:
+    print("No real roots found, cannot calculate m_max.")
+
+# If m_max is calculated, print the value
+if m_max is not None:
+    message_max = f"Maximum Moment: {m_max}"
+    print(message_max)  
+    # Solve for max moment, assuming root 1 is always positive
+m_max = - (0.5 * sigma1 * l1) * (root1 - (2/3) * l1) + anchor_force * (root1 - (l1 * (1/3))) - (sigma1 * (root1 - l1)) * ((root1 - l1) / 2) - (0.5 * ka * gamma_prime * (root1 - l1) ** 2) * ((root1 - l1) / 3) 
+m_max = - (0.5 * sigma1 * l1) * (root2 - (2/3) * l1) + anchor_force * (root2 - (l1 * (1/3))) - (sigma1 * (root2 - l1)) * ((root2 - l1) / 2) - (0.5 * ka * gamma_prime * (root2 - l1) ** 2) * ((root2 - l1) / 3) 
+message_max = f"Maximum Moment: {m_max}"
+
+# Convert complex numbers to floats before rounding
+if isinstance(m_max, complex):
+    m_max_real = m_max.real
+else:
+    m_max_real = m_max
+
+if isinstance(anchor_force, complex):
+    anchor_force_real = anchor_force.real
+else:
+    anchor_force_real = anchor_force
+
+# Round m_max_real and anchor_force_real to two decimal places
+m_max_rounded = round(m_max_real, 2)
+anchor_force_rounded = round(anchor_force_real, 2)
 
 # Solutions Box
-messagebox.showinfo("Embedment Depth Results", message_depth, " meters")
-messagebox.showinfo("Anchor Force Results", message_anchor, " kN")
+messagebox.showinfo("Embedment Depth Results", message_depth)
+messagebox.showinfo("Anchor Force Results (kN)", message_anchor)
+messagebox.showinfo("Maximum Moment Results (Kn-m)", message_max)
