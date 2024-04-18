@@ -11,7 +11,8 @@ The program will enable the user to input the following parameters:
 -	Location of the groundwater table.
 -	Height of the sheet pile above the dredge line.
 -	Soil properties (unit weights and angle of internal friction).
--	Other parameters that you feel are necessary for calculations.
+-	The total length of the user's sheet piles.
+-	The height of the water table above the dredge line.
 
 The program will also perform the following:
 - Automatic calculation of the embedment depth, anchor force and maximum moment.
