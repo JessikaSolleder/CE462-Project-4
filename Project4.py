@@ -1,5 +1,5 @@
 from math import tan
-import cmath
+import math
 import tkinter as tk
 from tkinter import simpledialog
 from tkinter import messagebox
@@ -56,8 +56,8 @@ else:
         # Check if the discriminant is positive, negative, or zero
         if discriminant >= 0:
             # If the discriminant is non-negative, calculate the roots
-            root1 = (-b + cmath.sqrt(discriminant)) / (2 * a)
-            root2 = (-b - cmath.sqrt(discriminant)) / (2 * a)
+            root1 = (-b + math.sqrt(discriminant)) / (2 * a)
+            root2 = (-b - math.sqrt(discriminant)) / (2 * a)
             return root1, root2
         else:
             # If the discriminant is negative, return complex roots
