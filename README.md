@@ -3,7 +3,7 @@
 This program will use the textbook free earth support method to design an anchored sheet pile wall. 
 
 Assumptions & Parameters:
-- The grounwater table is included, but seepage is not.
+- The groundwater table is included, but seepage is not.
 - The anchor is located at O' (see figure below).
 - Sheet pile equilibrium occurs when sum of forces and moments are zero.
 
