@@ -3,6 +3,30 @@ import cmath
 import tkinter as tk
 from tkinter import simpledialog
 from tkinter import messagebox
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Function to calculate embedment depth
+def calculate_embedment_depth(phi):
+    ka_phi = (tan(45 - (phi / 2))) ** 25
+    kp_phi = (tan(45 + (phi / 2))) ** 2
+    sigma1_phi = gamma * l1 * ka_phi
+    sigma2_phi = ((gamma * l1) + (gamma_prime * l2)) * ka_phi
+    l3_phi = sigma2_phi / (gamma_prime * (kp_phi - ka_phi))
+    l4_phi = pile_total_length - wall_height - l3_phi
+    embedment_depths_phi = 1.35 * (l3_phi + l4_phi)
+    return embedment_depths_phi
+
+# Function to calculate anchor force
+def calculate_anchor_force(phi):
+    ka_phi = (tan(45 - (phi / 2))) ** 25
+    kp_phi = (tan(45 + (phi / 2))) ** 2
+    sigma1_phi = gamma * l1 * ka_phi
+    sigma2_phi = ((gamma * l1) + (gamma_prime * l2)) * ka_phi
+    l3_phi = sigma2_phi / (gamma_prime * (kp_phi - ka_phi))
+    l4_phi = pile_total_length - wall_height - l3_phi
+    anchor_force_phi = p - (0.5 * (gamma_prime * (kp_phi - ka_phi)) * l4_phi)
+    return anchor_force_phi
 
 # User Inputs
 wall_height = simpledialog.askfloat("Input", "Enter wall height (m):")
@@ -28,89 +52,24 @@ else:
     sigma1 = gamma * l1 * ka
     sigma2 = ((gamma * l1) + (gamma_prime * l2)) * ka
     l3 = sigma2 / (gamma_prime * (kp - ka))
-
-    ############################################
-    l4 = pile_total_length - wall_height - l3  # long complicated equation in ppt, but why necessary if you have l1, l2 and l3?
-    ##########################################
-
+    l4 = pile_total_length - wall_height - l3
     p = (l1 * sigma1 * 0.5) + (sigma1 * l1) + (((sigma2 - sigma1) * l2) * 0.5) + (sigma2 * l3 * 0.5)
-    z_bar = (0.5 * l1 * sigma1 * ((l3 / 3) + l2 + l3) + (sigma1 * l2) * ((l2 / 2) + l3) + 0.5 * (
-                sigma2 - sigma1) * (l2 / 3) * ((l2 / 3) + l3) + 0.5 * l3 * sigma2 * (2 * l3 * (1 / 3))) / p
-    sigma8 = gamma_prime * (kp - ka) * l4
 
-    # Determine F (anchor force)
-    anchor_force = p - (0.5 * (gamma_prime * (kp - ka)) * l4)
-    message_anchor = f"Anchor Force: {anchor_force}"
+    # Calculate embedment depth for each phi value
+    phi_range_str = simpledialog.askstring("Input", "Enter range of phi values (start, stop, step):")
+    start, stop, step = map(float, phi_range_str.split(','))
+    phi_values = np.arange(start, stop, step)
+    embedment_depths = [calculate_embedment_depth(phi) for phi in phi_values]
     
-    # Determine embedment depth
-    d_theoretical = l3 + l4
-    d_actual = 1.35 * d_theoretical
-    message_depth = f"Theoretical Depth: {d_theoretical}\nActual Depth: {d_actual}"
+    # Calculate anchor force for each phi value
+    anchor_forces = [calculate_anchor_force(phi) for phi in phi_values]
 
-    # Determine maximum moment
-    def solve_quadratic(a, b, c):
-        # Calculate the discriminant
-        discriminant = (b ** 2) - (4 * a * c)
-
-        # Check if the discriminant is positive, negative, or zero
-        if discriminant >= 0:
-            # If the discriminant is non-negative, calculate the roots
-            root1 = (-b + cmath.sqrt(discriminant)) / (2 * a)
-            root2 = (-b - cmath.sqrt(discriminant)) / (2 * a)
-            return root1, root2
-        else:
-            # If the discriminant is negative, return complex roots
-            messagebox.showinfo("Error", "Discriminant is negative. Please input different values.")
-            return None, None
-
-    # Coefficients of the quadratic equation ax^2 + bx + c = 0
-    a = 0.5 * ka * gamma_prime
-    b = sigma1 - ka * gamma_prime * l1
-    c = (anchor_force + 0.5 * sigma1 * l1) - (0.5 * ka * gamma_prime * (l1 ** 2))
-
-    # Solve the quadratic equation
-
-root1, root2 = solve_quadratic(a, b, c)
-
-# Initialize m_max to None
-m_max = None
-
-# Check if root1 is a real number
-if isinstance(root1, (int, float)):
-    m_max = - (0.5 * sigma1 * l1) * (root1 - (2/3) * l1) + anchor_force * (root1 - (l1 * (1/3))) - (sigma1 * (root1 - l1)) * ((root1 - l1) / 2) - (0.5 * ka * gamma_prime * (root1 - l1) ** 2) * ((root1 - l1) / 3) 
-    print("Using root1 for m_max calculation.")
-# If root1 is not real, check if root2 is real
-elif isinstance(root2, (int, float)):
-    m_max = - (0.5 * sigma1 * l1) * (root2 - (2/3) * l1) + anchor_force * (root2 - (l1 * (1/3))) - (sigma1 * (root2 - l1)) * ((root2 - l1) / 2) - (0.5 * ka * gamma_prime * (root2 - l1) ** 2) * ((root2 - l1) / 3) 
-    print("Using root2 for m_max calculation.")
-else:
-    print("No real roots found, cannot calculate m_max.")
-
-# If m_max is calculated, print the value
-if m_max is not None:
-    message_max = f"Maximum Moment: {m_max}"
-    print(message_max)  
-    # Solve for max moment, assuming root 1 is always positive
-m_max = - (0.5 * sigma1 * l1) * (root1 - (2/3) * l1) + anchor_force * (root1 - (l1 * (1/3))) - (sigma1 * (root1 - l1)) * ((root1 - l1) / 2) - (0.5 * ka * gamma_prime * (root1 - l1) ** 2) * ((root1 - l1) / 3) 
-m_max = - (0.5 * sigma1 * l1) * (root2 - (2/3) * l1) + anchor_force * (root2 - (l1 * (1/3))) - (sigma1 * (root2 - l1)) * ((root2 - l1) / 2) - (0.5 * ka * gamma_prime * (root2 - l1) ** 2) * ((root2 - l1) / 3) 
-message_max = f"Maximum Moment: {m_max}"
-
-# Convert complex numbers to floats before rounding
-if isinstance(m_max, complex):
-    m_max_real = m_max.real
-else:
-    m_max_real = m_max
-
-if isinstance(anchor_force, complex):
-    anchor_force_real = anchor_force.real
-else:
-    anchor_force_real = anchor_force
-
-# Round m_max_real and anchor_force_real to two decimal places
-m_max_rounded = round(m_max_real, 2)
-anchor_force_rounded = round(anchor_force_real, 2)
-
-# Solutions Box
-messagebox.showinfo("Embedment Depth Results", message_depth)
-messagebox.showinfo("Anchor Force Results (kN)", message_anchor)
-messagebox.showinfo("Maximum Moment Results (Kn-m)", message_max)
+    # Plot the results
+    plt.plot(phi_values, embedment_depths, label='Embedment Depth', marker='o')
+    plt.plot(phi_values, anchor_forces, label='Anchor Force', marker='o')
+    plt.title("Sensitivity Analysis")
+    plt.xlabel("Phi Values (degrees)")
+    plt.ylabel("Value")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
