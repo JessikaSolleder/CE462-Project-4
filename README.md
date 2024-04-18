@@ -17,8 +17,8 @@ The program will enable the user to input the following parameters:
 The program will also perform the following:
 - Automatic calculation of the embedment depth, anchor force and maximum moment.
 -	Sensitivity analysis by systematically changing the angle of internal friction.
- -	Plot the angle of internal friction versus embedment depth
- -	Plot the angle of internal friction and anchor force.
+-	Plot the angle of internal friction versus embedment depth
+-	Plot the angle of internal friction and anchor force.
 
 For additional analysis the program will also perform the following:
  ------------- determine which of these to do! --------------
