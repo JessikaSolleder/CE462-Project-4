@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import simpledialog
 from tkinter import messagebox
 import numpy as np
+import matplotlib.pyplot as plt
 
 # User Inputs
 wall_height = simpledialog.askfloat("Input", "Enter wall height above dredge line (m):")
@@ -156,4 +157,40 @@ summary_message = f"Actual Embedment Depth Below Dredge Line (m): {embed_depth}\
         # Show the summary message in a pop-up window
 messagebox.showinfo("Summary", summary_message)
 
+def get_embedment_depth(phi):
+        # Calculate other parameters (similar to previous code)
+        sigma1 = get_sigma1(gamma, wall_height, water_table_height, ka)
+        sigma2 = get_sigma2(gamma, wall_height, gamma_prime, water_table_height)
+        sigma6 = get_sigma6(cohesion, gamma, wall_height, water_table_height, gamma_prime)
+        p1 = get_p1(sigma1, water_table_height, wall_height, sigma2)
+        zbar1 = get_zbar1(p1, wall_height, water_table_height, sigma1, sigma2)
 
+        # Solve quadratic equation (assuming it's related to embedment depth)
+        root = solve_quadratic(a, b, c)  # Replace a, b, c with appropriate coefficients for embedment depth
+
+        if root is not None:
+            return root * 1.75  # Embedment depth calculation
+        else:
+            return None
+
+    # Define phi range for comparison
+phi_range = np.linspace(2, 50, 40)  # Adjust start, end and number of phi values
+
+    # Calculate embedment depths for all phi values
+embedment_depth_values = []
+for phi in phi_range:
+        embedment_depth = get_embedment_depth(phi)
+        if embedment_depth is not None:
+            embedment_depth_values.append(embedment_depth)
+        else:
+            embedment_depth_values.append(np.nan)  # Handle cases where no valid depth is found
+
+    # Plotting phi vs embedment depth
+plt.plot(phi_range, embedment_depth_values)
+plt.xlabel('Phi (degrees)')
+plt.ylabel('Embedment Depth (m)')
+plt.title('Embedment Depth vs Phi')
+plt.grid(True)
+
+    # Display the plot in a pop-up window
+plt.show()
