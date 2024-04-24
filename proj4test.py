@@ -13,7 +13,7 @@ water_table_height = simpledialog.askfloat("Input", "Enter groundwater table hei
 cohesion = simpledialog.askfloat("Input", "Enter the cohesion of the clay soil layer (Pa):")
 
 # Constants
-l1 = (wall_height - water_table_height) / 3
+l1 = (wall_height - water_table_height) / 2
 l2 = (wall_height - water_table_height) - l1
 
 # Ensure all inputs are provided
@@ -87,6 +87,11 @@ else:
     else:
         print("There are no real roots or both roots are negative.")
         
+# Calculate embedment depth (m)
+def get_embed_depth (root):
+    embed_depth = root * 1.75
+    return embed_depth
+   
 # Calculate the Anchor Force - f (kN / m)
 def get_f(p1, sigma6, root):
     f = p1 - sigma6 * root
@@ -143,3 +148,12 @@ if largest_root is not None:
 else:
     print("No real roots found.")
     
+embed_depth = get_embed_depth (root)
+
+        # Create the summary message
+summary_message = f"Actual Embedment Depth Below Dredge Line (m): {embed_depth}\nAnchor Force (kN/m): {f}\nMaximum Moment (kN * m/m): {largest_root}"
+
+        # Show the summary message in a pop-up window
+messagebox.showinfo("Summary", summary_message)
+
+
