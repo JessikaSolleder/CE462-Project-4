@@ -31,7 +31,7 @@ else:
     l3 = sigma2 / (gamma_prime * (kp - ka))
 
     ############################################
-    l4 = pile_total_length - wall_height - l3  # long complicated equation in ppt, but why necessary if you have l1, l2 and l3?
+################# l4
     ##########################################
 
     p = (l1 * sigma1 * 0.5) + (sigma1 * l1) + (((sigma2 - sigma1) * l2) * 0.5) + (sigma2 * l3 * 0.5)
