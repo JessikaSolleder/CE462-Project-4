@@ -3,6 +3,10 @@ import tkinter as tk
 from tkinter import simpledialog, messagebox
 import numpy as np
 import matplotlib.pyplot as plt
+#
+# This model is project 4 for CE 462 for Dr. Nick Hudyma at Boise State University
+# @author Jessika Solleder
+#
 
 # User Inputs
 wall_height = simpledialog.askfloat("Input", "Enter wall height above dredge line (m):")
