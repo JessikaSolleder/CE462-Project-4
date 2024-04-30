@@ -1,7 +1,6 @@
 import math
 import tkinter as tk
-from tkinter import simpledialog
-from tkinter import messagebox
+from tkinter import simpledialog, messagebox
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -88,18 +87,18 @@ else:
     else:
         print("There are no real roots or both roots are negative.")
         
-# Calculate embedment depth (m)
-def get_embed_depth (root):
-    embed_depth = root * 1.75
-    return embed_depth
-   
-# Calculate the Anchor Force - f (kN / m)
-def get_f(p1, sigma6, root):
-    f = p1 - sigma6 * root
-    return f
+    # Calculate embedment depth (m)
+    def get_embed_depth(root):
+        embed_depth = root * 1.75
+        return embed_depth
 
-# Calculate Mmaxx (maxmimum moment in terms of x)
-def solve_quadratic2(a2, b2, c2):
+    # Calculate the Anchor Force - f (kN / m)
+    def get_f(p1, sigma6, root):
+        f = p1 - sigma6 * root
+        return f
+
+    # Calculate Mmax (maxmimum moment in terms of x)
+    def solve_quadratic2(a2, b2, c2):
         discriminant2 = b2 ** 2 - 4 * a2 * c2
 
         if discriminant2 < 0:
@@ -115,82 +114,127 @@ def solve_quadratic2(a2, b2, c2):
         else:
             return None
         
-f = get_f(p1, sigma6, root)
+    f = get_f(p1, sigma6, root)
 
-   # Define the coefficients of the quadratic equation
-a2 = (0.5 * ka * gamma_prime)
-b2 = sigma1
-c2 = (0.5 * sigma1 * (wall_height - water_table_height) - f)
-    # Call the quadratic equation solver
-roota = solve_quadratic(a2, b2, c2)
-
-if roota is not None:
-    print("The real and positive root for x is:", roota)
-else:
-    print("There are no real roots or both roots are negative.")
-
-# Calculate Mmax_x (kN * m/m)
-    # Define the coefficients of the polynomial equation ax^3 + bx^2 + cx + d = 0
-a3 = - ((1/6) * ka * gamma_prime)
-b3 = -(0.5 * sigma1)
-c3 = -(0.5 * sigma1 * (wall_height - water_table_height)) + f
-d3 = f * l2 + (0.5 * sigma1 * wall_height - water_table_height) * (0.3 * wall_height - water_table_height)
-
-# Find the roots of the polynomial equation
-roots = np.roots([a3, b3, c3, d3])
-real_roots = [root for root in roots if np.isreal(root)]
-
-print("Real roots of the polynomial equation:", real_roots)
-largest_root = max(real_roots, key=abs)
-
-# Print the largest real root
-if largest_root is not None:
-    print("Root with the largest absolute value:", largest_root)
-else:
-    print("No real roots found.")
+    # Define the coefficients of the quadratic equation
+    a2 = (0.5 * ka * gamma_prime)
+    b2 = sigma1
+    c2 = (0.5 * sigma1 * (wall_height - water_table_height) - f)
     
-embed_depth = get_embed_depth (root)
+    # Call the quadratic equation solver
+    roota = solve_quadratic(a2, b2, c2)
 
-        # Create the summary message
-summary_message = f"Actual Embedment Depth Below Dredge Line (m): {embed_depth}\nAnchor Force (kN/m): {f}\nMaximum Moment (kN * m/m): {largest_root}"
+    if roota is not None:
+        print("The real and positive root for x is:", roota)
+    else:
+        print("There are no real roots or both roots are negative.")
 
-        # Show the summary message in a pop-up window
-messagebox.showinfo("Summary", summary_message)
+    # Calculate Mmax_x (kN * m/m)
+    # Define the coefficients of the polynomial equation ax^3 + bx^2 + cx + d = 0
+    a3 = - ((1/6) * ka * gamma_prime)
+    b3 = -(0.5 * sigma1)
+    c3 = -(0.5 * sigma1 * (wall_height - water_table_height)) + f
+    d3 = f * l2 + (0.5 * sigma1 * wall_height - water_table_height) * (0.3 * wall_height - water_table_height)
 
+    # Find the roots of the polynomial equation
+    roots = np.roots([a3, b3, c3, d3])
+    real_roots = [root for root in roots if np.isreal(root)]
+
+    print("Real roots of the polynomial equation:", real_roots)
+    largest_root = max(real_roots, key=abs)
+
+    # Print the largest real root
+    if largest_root is not None:
+        print("Root with the largest absolute value:", largest_root)
+    else:
+        print("No real roots found.")
+    
+    embed_depth = get_embed_depth(root)
+
+    # Create the summary message
+    summary_message = f"Actual Embedment Depth Below Dredge Line (m): {embed_depth}\nAnchor Force (kN/m): {f}\nMaximum Moment (kN * m/m): {largest_root}"
+
+    # Show the summary message in a pop-up window
+    messagebox.showinfo("Summary", summary_message)
+
+    # Plot embedment depth versus Phi
+# Plot embedment depth versus Phi
 def get_embedment_depth(phi):
-        # Calculate other parameters (similar to previous code)
-        sigma1 = get_sigma1(gamma, wall_height, water_table_height, ka)
-        sigma2 = get_sigma2(gamma, wall_height, gamma_prime, water_table_height)
-        sigma6 = get_sigma6(cohesion, gamma, wall_height, water_table_height, gamma_prime)
-        p1 = get_p1(sigma1, water_table_height, wall_height, sigma2)
-        zbar1 = get_zbar1(p1, wall_height, water_table_height, sigma1, sigma2)
+    # Calculate other parameters (similar to previous code)
+    ka_phi = (np.tan(np.radians(45 - (phi / 2)))) ** 2
+    sigma1 = get_sigma1(gamma, wall_height, water_table_height, ka_phi)
+    sigma2 = get_sigma2(gamma, wall_height, gamma_prime, water_table_height)
+    sigma6 = get_sigma6(cohesion, gamma, wall_height, water_table_height, gamma_prime)
+    p1 = get_p1(sigma1, water_table_height, wall_height, sigma2)
+    zbar1 = get_zbar1(p1, wall_height, water_table_height, sigma1, sigma2)
 
-        # Solve quadratic equation (assuming it's related to embedment depth)
-        root = solve_quadratic(a, b, c)  # Replace a, b, c with appropriate coefficients for embedment depth
+    # Solve quadratic equation (assuming it's related to embedment depth)
+    root = solve_quadratic(sigma6, 2 * sigma6 * (wall_height - l1), 2 * p1 * wall_height - l1 - zbar1)
 
-        if root is not None:
-            return root * 1.75  # Embedment depth calculation
-        else:
-            return None
-
+    if root is not None:
+        return root * 1.75  # Embedment depth calculation
+    else:
+        return None
+    
     # Define phi range for comparison
+# Define phi range for comparison
 phi_range = np.linspace(2, 50, 40)  # Adjust start, end and number of phi values
 
-    # Calculate embedment depths for all phi values
+# Calculate embedment depths for all phi values
 embedment_depth_values = []
 for phi in phi_range:
-        embedment_depth = get_embedment_depth(phi)
-        if embedment_depth is not None:
-            embedment_depth_values.append(embedment_depth)
-        else:
-            embedment_depth_values.append(np.nan)  # Handle cases where no valid depth is found
+    embedment_depth = get_embedment_depth(phi)
+    if embedment_depth is not None:
+        embedment_depth_values.append(embedment_depth)
+    else:
+        embedment_depth_values.append(np.nan)  # Handle cases where no valid depth is found
 
-    # Plotting phi vs embedment depth
+# Plotting phi vs embedment depth
 plt.plot(phi_range, embedment_depth_values)
 plt.xlabel('Phi (degrees)')
 plt.ylabel('Embedment Depth (m)')
 plt.title('Embedment Depth vs Phi')
 plt.grid(True)
 
-    # Display the plot in a pop-up window
+# Display the plot in a pop-up window
+plt.show()
+
+ # Plot anchor force versus Phi
+def get_anchor_force(phi):
+        # Calculate other parameters (similar to previous code)
+        ka_phi = (np.tan(np.radians(45 - (phi / 2)))) ** 2
+        sigma1 = get_sigma1(gamma, wall_height, water_table_height, ka_phi)
+        sigma2 = get_sigma2(gamma, wall_height, gamma_prime, water_table_height)
+        sigma6 = get_sigma6(cohesion, gamma, wall_height, water_table_height, gamma_prime)
+        p1 = get_p1(sigma1, water_table_height, wall_height, sigma2)
+        zbar1 = get_zbar1(p1, wall_height, water_table_height, sigma1, sigma2)
+
+        # Solve quadratic equation (assuming it's related to anchor force)
+        root = solve_quadratic(sigma6, 2 * sigma6 * (wall_height - l1), 2 * p1 * wall_height - l1 - zbar1)
+
+        if root is not None:
+            return p1 - sigma6 * root  # Anchor force calculation
+        else:
+            return None
+    
+    # Calculate anchor forces for all phi values
+# Calculate anchor forces for all phi values
+anchor_force_values = []
+for phi in phi_range:
+    anchor_force = get_anchor_force(phi)
+    if anchor_force is not None:
+        anchor_force_values.append(anchor_force)
+    else:
+        anchor_force_values.append(np.nan)  # Handle cases where no valid anchor force is found
+
+# Convert anchor_force_values to a numpy array
+anchor_force_values = np.array(anchor_force_values)
+
+# Plotting phi vs anchor force
+plt.figure()
+plt.plot(phi_range, anchor_force_values)
+plt.xlabel('Phi (degrees)')
+plt.ylabel('Anchor Force (kN/m)')
+plt.title('Anchor Force vs Phi')
+plt.grid(True)
 plt.show()
